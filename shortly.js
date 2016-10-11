@@ -117,7 +117,8 @@ app.post('/login', function(req, res) {
   console.log('req.body', req.body);
   //make a new Users using the password and username;
   var newLogin = new User({ username: req.body.username, password: req.body.password});
-  newLogin.fetch().then(function(found) {
+
+  util.checkUser(newLogin).then(function(found) {
     if (found) {
       req.session.regenerate(function() {
         req.session.username = newLogin.get('username');
@@ -140,7 +141,8 @@ app.post('/signup', function(req, res) {
       res.status(404).send('username has already been taken');
       res.redirect('signup');
     } else {
-      establishAccount.save().then(function() {
+      establishAccount.save().then(function(newUser) {
+        console.log('I am first', newUser);
         req.session.regenerate(function() {
           req.session.username = establishAccount.get('username');
           res.redirect('/');

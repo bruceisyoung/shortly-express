@@ -1,29 +1,28 @@
 var db = require('../config');
 var bcrypt = require('bcrypt-nodejs');
 var Promise = require('bluebird');
-
+var bcryptAsync = Promise.promisifyAll(bcrypt);
 
 
 var User = db.Model.extend({
   tableName: 'users',
-  hasTimestamps: true
+  hasTimestamps: true, 
+  initialize: function(params) {
+    this.on('creating', function(model, attrs, options) {
+      return bcryptAsync.genSaltAsync(10)
+                        .then(function(salt) {
+                          console.log(salt);
+                          return bcryptAsync.hashAsync(model.get('password'), salt, null);
+                        })
+                        .then(function(hashedPassword) {
+                          console.log(hashedPassword);
+                          model.set('password', hashedPassword);
+                        })
+                        .catch(function(err) {
+                          console.err('error: ', err);
+                        });
+    });
+  }
 });
 
 module.exports = User;
-
-
-
-
-
-// db.knex.schema.hasTable('users').then(function(exists) {
-//   if (!exists) {
-//     db.knex.schema.createTable('users', function (user) {
-//       user.increments('id').primary();
-//       user.string('username', 50);
-//       user.string('password', 50);
-//       user.timestamps();
-//     }).then(function (table) {
-//       console.log('Created Table', table);
-//     });
-//   }
-// });
