@@ -51,6 +51,22 @@ app.get('/create',
   }
 );
 
+app.get('/signup',
+  function(req, res) {
+    res.render('signup');
+  }
+);
+
+app.get('/logout', 
+  function(req, res) {
+    console.log('Haha, i am going to destroy.');
+    req.session.destroy(function() {
+      console.log('hahaha, destroying');
+      res.redirect('/');
+    });
+  }
+);
+
 app.get('/links', 
   function(req, res) {
     if (req.session.username) {
